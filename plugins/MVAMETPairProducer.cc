@@ -87,10 +87,10 @@ MVAMETPairProducer::MVAMETPairProducer(const edm::ParameterSet& cfg)
   leg1Eta_     = cfg.getParameter<double>("leg1Eta");
   leg2Eta_     = cfg.getParameter<double>("leg2Eta");
   minDeltaR_     = cfg.getParameter<double>("minDeltaR");
-  std::cout << "Info in <MVAMETPairProducer>: " << std::endl;
-  std::cout << "Leg 1: " << srcLeg1_.label() << ", pT > " << leg1Pt_ << " |Eta| < " << leg1Eta_ << std::endl;
-  std::cout << "Leg 2: " << srcLeg2_.label() << ", pT > " << leg2Pt_ << " |Eta| < " << leg2Eta_ << std::endl;
-  std::cout << "Require DeltaR > " << minDeltaR_ << std::endl;
+  // std::cout << "Info in <MVAMETPairProducer>: " << std::endl;
+  // std::cout << "Leg 1: " << srcLeg1_.label() << ", pT > " << leg1Pt_ << " |Eta| < " << leg1Eta_ << std::endl;
+  // std::cout << "Leg 2: " << srcLeg2_.label() << ", pT > " << leg2Pt_ << " |Eta| < " << leg2Eta_ << std::endl;
+  // std::cout << "Require DeltaR > " << minDeltaR_ << std::endl;
   // ICHiggsTauTau
 
   srcRho_          = cfg.getParameter<edm::InputTag>("srcRho");

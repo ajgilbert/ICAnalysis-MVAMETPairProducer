@@ -1,12 +1,10 @@
-
 import FWCore.ParameterSet.Config as cms
 
-#from RecoMET.METProducers.PFMET_cfi import pfMet
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
-from JetMETCorrections.Configuration.DefaultJEC_cff  import *
-#from JetMETCorrections.METPUSubtraction.mvaPFMET_leptons           import *
-from JetMETCorrections.METPUSubtraction.mvaPFMET_leptons_42X_cff       import *
-from RecoJets.JetProducers.PileupJetIDParams_cfi                        import JetIdParams
+from JetMETCorrections.Configuration.JetCorrectionServices_cff      import *
+from JetMETCorrections.Configuration.DefaultJEC_cff                 import *
+from JetMETCorrections.METPUSubtraction.mvaPFMET_leptons_42X_cff    import *
+del hpsPFTauDiscriminationByDecayModeFinding
+from RecoJets.JetProducers.PileupJetIDParams_cfi                    import JetIdParams
 
 mvaMetPairs = cms.EDProducer("MVAMETPairProducer",
     srcCorrJets = cms.InputTag('calibratedAK5PFJetsForPFMEtMVA'),
@@ -37,7 +35,7 @@ mvaMetPairs = cms.EDProducer("MVAMETPairProducer",
     tmvaWeights = cms.string("RecoJets/JetProducers/data/mva_JetID_v1.weights.xml"),
     tmvaMethod = cms.string("JetID"),
     version = cms.int32(-1),
-    cutBased = cms.bool(False),                      
+    cutBased = cms.bool(False),
     tmvaVariables = cms.vstring(
         "nvtx",
         "jetPt",
@@ -60,11 +58,3 @@ mvaMetPairs = cms.EDProducer("MVAMETPairProducer",
     JetIdParams = JetIdParams,
     verbosity = cms.int32(0)
 )
-
-pfMEtAllPairsMVAsequence  = cms.Sequence(
-    (isomuonseq+isotauseq+isoelectronseq)*
-    calibratedAK5PFJetsForPFMEtMVA*
-    pfMEtMVA
-)
-
-
