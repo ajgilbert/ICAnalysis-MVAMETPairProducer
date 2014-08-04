@@ -4,6 +4,8 @@ from JetMETCorrections.Configuration.JetCorrectionServices_cff      import *
 from JetMETCorrections.Configuration.DefaultJEC_cff                 import *
 from JetMETCorrections.METPUSubtraction.mvaPFMET_leptons_42X_cff    import *
 del hpsPFTauDiscriminationByDecayModeFinding
+pfMEtMVAsequence.remove(kt6PFJets)
+del kt6PFJets
 from RecoJets.JetProducers.PileupJetIDParams_cfi                    import JetIdParams
 
 mvaMetPairs = cms.EDProducer("MVAMETPairProducer",
