@@ -1,5 +1,5 @@
 <library file="*.cc" name="ICAnalysisMVAMETPairProducerplugins">
-  <use name="JetMETCorrections/METPUSubtraction"/>
+  <use name="RecoMET/METPUSubtraction"/>
   <use name="clhep"/>
   <flags EDM_PLUGIN="1"/>
   <flags CPPDEFINES="$(CMSSW_VERSION)"/>

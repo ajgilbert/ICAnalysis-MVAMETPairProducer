@@ -29,8 +29,8 @@
 
 #include "RecoMET/METAlgorithms/interface/METAlgo.h"
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
-#include "JetMETCorrections/METPUSubtraction/interface/PFMETAlgorithmMVA.h"
-#include "JetMETCorrections/METPUSubtraction/interface/mvaMEtUtilities.h"
+#include "RecoMET/METPUSubtraction/interface/PFMETAlgorithmMVA.h"
+#include "RecoMET/METPUSubtraction/interface/mvaMEtUtilities.h"
 
 #include "RecoJets/JetProducers/interface/PileupJetIdAlgo.h"
 
@@ -50,11 +50,11 @@ namespace reco
     void produce(edm::Event&, const edm::EventSetup&);
 
     // auxiliary functions
-    std::vector<mvaMEtUtilities::JetInfo> computeJetInfo(const reco::PFJetCollection&, const reco::PFJetCollection&, const reco::VertexCollection&, const reco::Vertex*, 
+    std::vector<reco::PUSubMETCandInfo> computeJetInfo(const reco::PFJetCollection&, const reco::PFJetCollection&, const reco::VertexCollection&, const reco::Vertex*, 
                              const JetCorrector &iCorr,edm::Event & iEvent,const edm::EventSetup &iSetup,
-                             std::vector<mvaMEtUtilities::leptonInfo> &iLeptons,std::vector<mvaMEtUtilities::pfCandInfo> &iCands);
+                             std::vector<reco::PUSubMETCandInfo> &iLeptons,std::vector<reco::PUSubMETCandInfo> &iCands);
     
-    std::vector<mvaMEtUtilities::pfCandInfo> computePFCandidateInfo(const reco::PFCandidateCollection&, const reco::Vertex*);
+    std::vector<reco::PUSubMETCandInfo> computePFCandidateInfo(const reco::CandidateView&, const reco::Vertex*);
     std::vector<reco::Vertex::Point> computeVertexInfo(const reco::VertexCollection&);
     double chargedFrac(const reco::Candidate *iCand,const reco::PFCandidateCollection& pfCandidates,const reco::Vertex* hardScatterVertex);
     
@@ -89,6 +89,7 @@ namespace reco
     METAlgo metAlgo_;
     PFSpecificAlgo pfMEtSpecificAlgo_;
     PFMETAlgorithmMVA mvaMEtAlgo_;
+    bool mvaMEtAlgo_isInitialized_; 
     PileupJetIdAlgo mvaJetIdAlgo_;
 
     int verbosity_;
