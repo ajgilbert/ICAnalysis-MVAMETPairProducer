@@ -56,11 +56,11 @@ namespace reco
     
     std::vector<reco::PUSubMETCandInfo> computePFCandidateInfo(const reco::CandidateView&, const reco::Vertex*);
     std::vector<reco::Vertex::Point> computeVertexInfo(const reco::VertexCollection&);
-    double chargedFrac(const reco::Candidate *iCand,const reco::PFCandidateCollection& pfCandidates,const reco::Vertex* hardScatterVertex);
+    double chargedEnFrac(const reco::Candidate *iCand,const reco::CandidateView& pfCandidates,const reco::Vertex* hardScatterVertex);
     
     bool   passPFLooseId(const reco::PFJet *iJet);
     bool   istau        (const reco::Candidate *iCand);
-    double chargedFracInCone(const reco::Candidate *iCand,const reco::PFCandidateCollection& pfCandidates,const reco::Vertex* hardScatterVertex,double iDRMax=0.2);
+    double chargedFracInCone(const reco::Candidate *iCand,const reco::CandidateView& pfCandidates,const reco::Vertex* hardScatterVertex,double iDRMax=0.2);
 
    // configuration parameter
     edm::InputTag srcCorrJets_;

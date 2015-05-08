@@ -1,3 +1,4 @@
+//Most of this code is copied from /RecoMet/METPUSubtraction/plugins/PFMETProducerMVA.cc
 #include "ICAnalysis/MVAMETPairProducer/plugins/MVAMETPairProducer.hh"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -184,8 +185,8 @@ void MVAMETPairProducer::produce(edm::Event& evt, const edm::EventSetup& es)
       reco::PUSubMETCandInfo pLeptonInfo2;
       pLeptonInfo1.p4_          = leg1_filtered[i]->p4();
       pLeptonInfo2.p4_          = leg2_filtered[j]->p4();
-//      pLeptonInfo1.chargedFrac_ = chargedFrac(leg1_filtered[i],*pfCandidates,hardScatterVertex); 
- //     pLeptonInfo2.chargedFrac_ = chargedFrac(leg2_filtered[j],*pfCandidates,hardScatterVertex);
+      pLeptonInfo1.chargedEnFrac_ = chargedEnFrac(leg1_filtered[i],*pfCandidates_view,hardScatterVertex); 
+      pLeptonInfo2.chargedEnFrac_ = chargedEnFrac(leg2_filtered[j],*pfCandidates_view,hardScatterVertex);
       leptonInfo.back().push_back(pLeptonInfo1); 
       leptonInfo.back().push_back(pLeptonInfo2); 
       (lId.back())++;
@@ -382,8 +383,9 @@ std::vector<reco::Vertex::Point> MVAMETPairProducer::computeVertexInfo(const rec
   }
   return retVal;
 }
-double MVAMETPairProducer::chargedFrac(const reco::Candidate *iCand,
-                  const reco::PFCandidateCollection& pfCandidates,const reco::Vertex* hardScatterVertex) { 
+
+double MVAMETPairProducer::chargedEnFrac(const reco::Candidate *iCand,
+				     const reco::CandidateView& pfCandidates,const reco::Vertex* hardScatterVertex) { 
   if(iCand->isMuon())     {
     return 1;
   }
@@ -391,16 +393,9 @@ double MVAMETPairProducer::chargedFrac(const reco::Candidate *iCand,
     return 1.;
   }
   if(iCand->isPhoton()  )   {return chargedFracInCone(iCand, pfCandidates,hardScatterVertex);}
-
-  reco::PFCandidate const* pfTest = 0;
-  pfTest = dynamic_cast<reco::PFCandidate const*>(iCand);
-  if (pfTest != 0) {
-    if (pfTest->muonRef().isNonnull()) return 1;
-  }
-
   double lPtTot = 0; double lPtCharged = 0;
   const reco::PFTau *lPFTau = 0; 
-  lPFTau = dynamic_cast<const reco::PFTau*>(iCand);//} 
+  lPFTau = dynamic_cast<const reco::PFTau*>(iCand);
   if(lPFTau != 0) { 
     for (UInt_t i0 = 0; i0 < lPFTau->signalPFCands().size(); i0++) { 
       lPtTot += (lPFTau->signalPFCands())[i0]->pt(); 
@@ -409,19 +404,20 @@ double MVAMETPairProducer::chargedFrac(const reco::Candidate *iCand,
     }
   } 
   else { 
-    const pat::Tau *lPatPFTau = 0; 
-    lPatPFTau = dynamic_cast<const pat::Tau*>(iCand);//} 
-    if(lPatPFTau != 0) { 
-      for (UInt_t i0 = 0; i0 < lPatPFTau->signalCands().size(); i0++) {
-        lPtTot += (lPatPFTau->signalCands())[i0]->pt(); 
-        if((lPatPFTau->signalCands())[i0]->charge() == 0) continue;
-        lPtCharged += (lPatPFTau->signalCands())[i0]->pt(); 
+    const pat::Tau *lPatPFTau = nullptr; 
+    lPatPFTau = dynamic_cast<const pat::Tau*>(iCand);
+    if(lPatPFTau != nullptr) { 
+      for (UInt_t i0 = 0; i0 < lPatPFTau->signalCands().size(); i0++) { 
+	lPtTot += (lPatPFTau->signalCands())[i0]->pt(); 
+	if((lPatPFTau->signalCands())[i0]->charge() == 0) continue;
+	lPtCharged += (lPatPFTau->signalCands())[i0]->pt(); 
       }
     }
   }
   if(lPtTot == 0) lPtTot = 1.;
   return lPtCharged/lPtTot;
 }
+
 //Return tau id by process of elimination
 bool MVAMETPairProducer::istau(const reco::Candidate *iCand) { 
   if(iCand->isMuon())     return false;
@@ -441,25 +437,34 @@ bool MVAMETPairProducer::passPFLooseId(const PFJet *iJet) {
 }
 
 double MVAMETPairProducer::chargedFracInCone(const reco::Candidate *iCand,
-             const reco::PFCandidateCollection& pfCandidates,
-             const reco::Vertex* hardScatterVertex,double iDRMax)
+					   const reco::CandidateView& pfCandidates,
+					   const reco::Vertex* hardScatterVertex,double iDRMax)
 {
-
+  double iDR2Max = iDRMax*iDRMax;
   reco::Candidate::LorentzVector lVis(0,0,0,0);
-  for ( reco::PFCandidateCollection::const_iterator pfCandidate = pfCandidates.begin();
-  pfCandidate != pfCandidates.end(); ++pfCandidate ) {
-    if(deltaR(iCand->p4(),pfCandidate->p4()) > iDRMax)  continue;
+  for ( reco::CandidateView::const_iterator pfCandidate = pfCandidates.begin();
+	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
+    if(deltaR2(iCand->p4(),pfCandidate->p4()) > iDR2Max)  continue;
     double dZ = -999.; // PH: If no vertex is reconstructed in the event
                        //     or PFCandidate has no track, set dZ to -999
     if ( hardScatterVertex ) {
-      if      ( pfCandidate->trackRef().isNonnull()    ) dZ = fabs(pfCandidate->trackRef()->dz(hardScatterVertex->position()));
-      else if ( pfCandidate->gsfTrackRef().isNonnull() ) dZ = fabs(pfCandidate->gsfTrackRef()->dz(hardScatterVertex->position()));
+      const reco::PFCandidate* pfc = dynamic_cast<const reco::PFCandidate* >( (&(*pfCandidate)) );
+      if( pfc != nullptr ) { //PF candidate for RECO and PAT levels
+	if      ( pfc->trackRef().isNonnull()    ) dZ = std::abs(pfc->trackRef()->dz(hardScatterVertex->position()));
+	else if ( pfc->gsfTrackRef().isNonnull() ) dZ = std::abs(pfc->gsfTrackRef()->dz(hardScatterVertex->position()));
+      }
+      else { //if not, then packedCandidate for miniAOD level
+	const pat::PackedCandidate* pfc = dynamic_cast<const pat::PackedCandidate* >( &(*pfCandidate) );
+	dZ = std::abs( pfc->dz( hardScatterVertex->position() ) );
+      }
     }
-    if(fabs(dZ) > 0.1) continue; 
+    if(std::abs(dZ) > 0.1) continue; 
     lVis += pfCandidate->p4();
   }
   return lVis.pt()/iCand->pt();
 }
+
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
