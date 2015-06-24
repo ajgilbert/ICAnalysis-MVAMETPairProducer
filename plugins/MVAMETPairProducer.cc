@@ -183,10 +183,10 @@ void MVAMETPairProducer::produce(edm::Event& evt, const edm::EventSetup& es)
       lId.push_back(0);
       reco::PUSubMETCandInfo pLeptonInfo1;
       reco::PUSubMETCandInfo pLeptonInfo2;
-      pLeptonInfo1.p4_          = leg1_filtered[i]->p4();
-      pLeptonInfo2.p4_          = leg2_filtered[j]->p4();
-      pLeptonInfo1.chargedEnFrac_ = chargedEnFrac(leg1_filtered[i],*pfCandidates_view,hardScatterVertex); 
-      pLeptonInfo2.chargedEnFrac_ = chargedEnFrac(leg2_filtered[j],*pfCandidates_view,hardScatterVertex);
+      pLeptonInfo1.setP4( leg1_filtered[i]->p4());
+      pLeptonInfo2.setP4( leg2_filtered[j]->p4());
+      pLeptonInfo1.setChargedEnFrac(chargedEnFrac(leg1_filtered[i],*pfCandidates_view,hardScatterVertex)); 
+      pLeptonInfo2.setChargedEnFrac(chargedEnFrac(leg2_filtered[j],*pfCandidates_view,hardScatterVertex));
       leptonInfo.back().push_back(pLeptonInfo1); 
       leptonInfo.back().push_back(pLeptonInfo2); 
       (lId.back())++;
@@ -232,7 +232,7 @@ void MVAMETPairProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   if (verbosity_) {
     std::cout << "MVA MET: " << i << std::endl;
     for (unsigned j = 0; j < leptonInfo[i].size(); ++j) {
-     std::cout << leptonInfo[i][j].p4_.pt() << "  ";
+     std::cout << leptonInfo[i][j].p4().pt() << "  ";
     }
     std::cout << std::endl;
   }
@@ -307,7 +307,7 @@ std::vector<reco::PUSubMETCandInfo> MVAMETPairProducer::computeJetInfo(const rec
       reco::PUSubMETCandInfo jetInfo;
       
       // PH: apply jet energy corrections for all Jets ignoring recommendations
-      jetInfo.p4_ = corrJet->p4();
+      jetInfo.setP4(corrJet->p4());
       double lType1Corr = 0;
       if(useType1_) { //Compute the type 1 correction ===> This code is crap 
       double pCorr = lCorrector->correction(*uncorrJet,iEvent,iSetup);
@@ -316,12 +316,12 @@ std::vector<reco::PUSubMETCandInfo> MVAMETPairProducer::computeJetInfo(const rec
       reco::Candidate::LorentzVector pType1Corr; pType1Corr.SetCoordinates(pVec.Px(),pVec.Py(),pVec.Pz(),pVec.E());
       //Filter to leptons
       bool pOnLepton = false;
-      for(unsigned int i0 = 0; i0 < iLeptons.size(); i0++) if(deltaR(iLeptons[i0].p4_,corrJet->p4()) < 0.5) pOnLepton = true;
+      for(unsigned int i0 = 0; i0 < iLeptons.size(); i0++) if(deltaR(iLeptons[i0].p4(),corrJet->p4()) < 0.5) pOnLepton = true;
       //Add it to PF Collection
       if(corrJet->pt() > 10 && !pOnLepton) {
         reco::PUSubMETCandInfo pfCandidateInfo;
-        pfCandidateInfo.p4_ = pType1Corr;
-        pfCandidateInfo.dZ_ = -999;
+        pfCandidateInfo.setP4(pType1Corr);
+        pfCandidateInfo.setDZ(-999);
         iCands.push_back(pfCandidateInfo);
       }
       //Scale
@@ -330,11 +330,12 @@ std::vector<reco::PUSubMETCandInfo> MVAMETPairProducer::computeJetInfo(const rec
         }
       
       // check that jet Pt used to compute MVA based jet id. is above threshold
-      if ( !(jetInfo.p4_.pt() > minCorrJetPt_) ) continue;
-      jetInfo.mva_ = mvaJetIdAlgo_.computeIdVariables(&(*corrJet), jetEnCorrFactor, hardScatterVertex, vertices, true).mva();
+      if ( !(jetInfo.p4().pt() > minCorrJetPt_) ) continue;
+      jetInfo.setMvaVal(mvaJetIdAlgo_.computeIdVariables(&(*corrJet), jetEnCorrFactor, hardScatterVertex, vertices, true).mva());
 //      jetInfo.mva_ = jetIds[ corrJet ];
-      jetInfo.chargedEnFrac_ = (uncorrJet->chargedEmEnergy() + uncorrJet->chargedHadronEnergy() + uncorrJet->chargedMuEnergy() )/uncorrJet->energy();
-      if(useType1_) jetInfo.chargedEnFrac_ += lType1Corr*(1-jetInfo.chargedEnFrac_);
+      float chEnF = (uncorrJet->chargedEmEnergy() + uncorrJet->chargedHadronEnergy() + uncorrJet->chargedMuEnergy() )/uncorrJet->energy();
+      if(useType1_) chEnF += lType1Corr*(1-jetInfo.chargedEnFrac());
+      jetInfo.setChargedEnFrac(chEnF);
       retVal.push_back(jetInfo);
       break;
     }
@@ -364,8 +365,8 @@ std::vector<reco::PUSubMETCandInfo> MVAMETPairProducer::computePFCandidateInfo(c
       }
     }
     reco::PUSubMETCandInfo pfCandidateInfo;
-    pfCandidateInfo.p4_ = pfCandidate->p4();
-    pfCandidateInfo.dZ_ = dZ;
+    pfCandidateInfo.setP4( pfCandidate->p4());
+    pfCandidateInfo.setDZ( dZ);
     retVal.push_back(pfCandidateInfo);
   }
   return retVal;
