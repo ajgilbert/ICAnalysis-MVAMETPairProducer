@@ -4,7 +4,7 @@
 using namespace reco;
 
 const double dR2Min = 0.01*0.01;
-const double dR2Max = 0.5*0.5;
+const double dR2Max = 0.29;
 const double dPtMatch = 0.1;
 
   CommonMVAMETPairProducer::CommonMVAMETPairProducer(const edm::ParameterSet& cfg) 
@@ -228,7 +228,7 @@ CommonMVAMETPairProducer::getPermutations(std::vector<size_t> lengths, std::vect
 
     // Check whether a previous collection is identical to the current one.
     // If yes, make sure to only take each object/object pair once.
-    bool already_used = false;
+   /* bool already_used = false;
     for (size_t i_depth = 0; i_depth < current.size(); ++i_depth) {
       if (srcLeptonsTags_[current.size()] == srcLeptonsTags_[i_depth] ) {
 	edm::LogInfo("getPermutations") << "using same collection" << std::endl;
@@ -237,9 +237,9 @@ CommonMVAMETPairProducer::getPermutations(std::vector<size_t> lengths, std::vect
 	  break;
 	}
       }
-    }
-    if (already_used)
-      continue;
+    }*/
+    //if (already_used)
+     // continue;
 
     current.push_back(i);
     if (lengths.size() == 0) { // nothing left
