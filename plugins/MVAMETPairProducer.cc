@@ -54,7 +54,7 @@ namespace
     return os.str();
   }
 
-  std::string format_vInputTag(const std::vector<edm::InputTag>& vit)
+/*  std::string format_vInputTag(const std::vector<edm::InputTag>& vit)
   {
     std::vector<std::string> vit_string;
     for ( std::vector<edm::InputTag>::const_iterator vit_i = vit.begin();
@@ -62,9 +62,9 @@ namespace
       vit_string.push_back(vit_i->label());
     }
     return format_vT(vit_string);
-  }
+  }*/
 
-  void printJets(std::ostream& stream, const reco::PFJetCollection& jets)
+  /*void printJets(std::ostream& stream, const reco::PFJetCollection& jets)
   {
     unsigned numJets = jets.size();
     for ( unsigned iJet = 0; iJet < numJets; ++iJet ) {
@@ -72,11 +72,11 @@ namespace
       stream << " #" << iJet << ": Pt = " << jetP4.pt() << "," 
 	     << " eta = " << jetP4.eta() << ", phi = " << jetP4.phi() << std::endl;
     }
-  }
+  }*/
 }
 
 MVAMETPairProducer::MVAMETPairProducer(const edm::ParameterSet& cfg) 
-   : mvaMEtAlgo_(cfg), mvaMEtAlgo_isInitialized_(false), mvaJetIdAlgo_(cfg)
+   : mvaMEtAlgo_(cfg), mvaMEtAlgo_isInitialized_(false) /*, mvaJetIdAlgo_(cfg)*/
 {
   srcCorrJets_     = cfg.getParameter<edm::InputTag>("srcCorrJets");
   srcUncorrJets_   = cfg.getParameter<edm::InputTag>("srcUncorrJets");
