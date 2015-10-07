@@ -4,7 +4,7 @@
 using namespace reco;
 
 const double dR2Min = 0.01*0.01;
-const double dR2Max = 0.29;
+const double dR2Max = 0.5*0.5;
 const double dPtMatch = 0.1;
 
   CommonMVAMETPairProducer::CommonMVAMETPairProducer(const edm::ParameterSet& cfg) 
