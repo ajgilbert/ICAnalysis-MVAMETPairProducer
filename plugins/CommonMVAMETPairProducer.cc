@@ -17,13 +17,14 @@ const double dPtMatch = 0.1;
   srcPFCandidatesView_ = consumes<reco::CandidateView>(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
   srcVertices_     = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcVertices"));
   srcLeptonsTags_ = cfg.getParameter<vInputTag>("srcLeptons");
+  consumes<double>(edm::InputTag(cfg.getParameter<edm::InputTag>("srcRho")));
   for(vInputTag::const_iterator it=srcLeptonsTags_.begin();it!=srcLeptonsTags_.end();it++) {
     srcLeptons_.push_back( consumes<reco::CandidateView >( *it ) );
   }
 
   minNumLeptons_   = cfg.getParameter<int>("minNumLeptons");
   permuteLeptons_  = cfg.getParameter<bool>("permuteLeptons");
-  srcRho_          = consumes<edm::Handle<double> >(cfg.getParameter<edm::InputTag>("srcRho"));
+//  srcRho_          = consumes<edm::Handle<double> >(cfg.getParameter<edm::InputTag>("srcRho"));
 
   globalThreshold_ = cfg.getParameter<double>("globalThreshold");
 
@@ -373,6 +374,7 @@ CommonMVAMETPairProducer::computeJetInfo(const reco::PFJetCollection& uncorrJets
       double lType1Corr = 0;
       if(useType1_) { //Compute the type 1 correction ===> This code is crap 
 	double pCorr = lCorrector->correction(*uncorrJet,iEvent,iSetup);
+	//double pCorr = lCorrector->correction(*uncorrJet,iEvent,iSetup);
 	lType1Corr = std::abs(corrJet->pt()-pCorr*uncorrJet->pt());
 	TLorentzVector pVec; pVec.SetPtEtaPhiM(lType1Corr,0,corrJet->phi(),0); 
 	reco::Candidate::LorentzVector pType1Corr; pType1Corr.SetCoordinates(pVec.Px(),pVec.Py(),pVec.Pz(),pVec.E());
